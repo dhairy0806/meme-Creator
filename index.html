@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Meme Generator</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: #f0f0f0; }
+        .container { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 100%; padding: 12px; font-size: 16px; border: 2px solid #ddd; border-radius: 5px; margin-bottom: 20px; }
+        button { background: #ff6b6b; color: white; padding: 12px 24px; border: none; border-radius: 5px; font-size: 16px; cursor: pointer; margin-right: 10px; }
+        button:hover { background: #ff5252; }
+        #memeCanvas { max-width: 100%; border: 2px solid #ddd; border-radius: 5px; margin: 20px 0; display: none; }
+        .templates { display: flex; gap: 10px; margin: 20px 0; flex-wrap: wrap; }
+        .template-btn { padding: 8px 12px; background: #4ecdc4; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        .template-btn:hover { background: #45b7aa; }
+        h1 { color: #333; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Meme Generator</h1>
+        <input type="text" id="topicInput" placeholder="Enter a topic (e.g., 'cats being weird', 'Monday mornings')">
+        <br>
+        <button onclick="generateMeme()">Generate Random Meme</button>
+        <button onclick="downloadMeme()">Download Meme</button>
+        
+        <div class="templates">
+            <button class="template-btn" onclick="selectTemplate('drake')">Drake Hotline</button>
+            <button class="template-btn" onclick="selectTemplate('distracted')">Distracted BF</button>
+            <button class="template-btn" onclick="selectTemplate('success')">Success Kid</button>
+        </div>
+        
+        <canvas id="memeCanvas" width="500" height="500"></canvas>
+    </div>
+
+    <script>
+        const templates = {
+            drake: 'https://i.imgflip.com/30b1gx.jpg',
+            distracted: 'https://i.imgflip.com/1ur9b0.jpg',
+            success: 'https://i.imgflip.com/26jxvz.jpg'
+        };
+
+        let currentImage = new Image();
+        let canvas = document.getElementById('memeCanvas');
+        let ctx = canvas.getContext('2d');
+
+        // Funny text ideas based on topic (simple randomization)
+        const textIdeas = [
+            ["When you", "But actually"],
+            ["Me trying to", "Reality:"],
+            ["Expectation:", "Reality:"],
+            ["POV: You're", "And then"],
+            ["This is fine", "When"]
+        ];
+
+        function generateMeme() {
+            const topic = document.getElementById('topicInput').value || 'random';
+            const templateKey = Object.keys(templates)[Math.floor(Math.random() * Object.keys(templates).length)];
+            loadTemplate(templateKey, topic);
+        }
+
+        function selectTemplate(templateKey) {
+            const topic = document.getElementById('topicInput').value || 'selected';
+            loadTemplate(templateKey, topic);
+        }
+
+        function loadTemplate(templateKey, topic) {
+            currentImage.crossOrigin = 'anonymous';
+            currentImage.onload = () => {
+                canvas.width = currentImage.width;
+                canvas.height = currentImage.height;
+                canvas.style.display = 'block';
+                
+                ctx.drawImage(currentImage, 0, 0);
+                
+                // Generate funny text
+                const idea = textIdeas[Math.floor(Math.random() * textIdeas.length)];
+                const topText = `${idea[0]} ${topic.toUpperCase()}`;
+                const bottomText = `${idea[1]} ${topic.toUpperCase()} 😩`;
+                
+                drawText(topText, canvas.height * 0.1);
+                drawText(bottomText, canvas.height * 0.8);
+            };
+            currentImage.src = templates[templateKey];
+        }
+
+        function drawText(text, y) {
+            ctx.fillStyle = 'white';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 5;
+            ctx.textAlign = 'center';
+            ctx.font = 'bold 40px Impact, Arial';
+            
+            ctx.strokeText(text, canvas.width / 2, y);
+            ctx.fillText(text, canvas.width / 2, y);
+        }
+
+        function downloadMeme() {
+            const link = document.createElement('a');
+            link.download = 'my-meme.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        }
+
+        // Auto-generate on load
+        window.onload = () => generateMeme();
+    </script>
+</body>
+</html>
